@@ -26,13 +26,23 @@ namespace DarkSouls3SaveGameBackupTool
 
         private void SetDarkSouls3SaveGameLocation()
         {
-            string darkSoulsIIIBaseFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\DarkSoulsIII\";
+            try
+            {
 
-            var darkSoulIIISubFolders = Directory.GetDirectories(darkSoulsIIIBaseFolder);
+                string darkSoulsIIIBaseFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\DarkSoulsIII\";
 
-            saveGameLocation = darkSoulIIISubFolders[0] + "\\";
+                var darkSoulIIISubFolders = Directory.GetDirectories(darkSoulsIIIBaseFolder);
 
-            txtBox_darkSouls3SaveGameLocation.Text = saveGameLocation;
+                saveGameLocation = darkSoulIIISubFolders[0] + "\\";
+
+                txtBox_darkSouls3SaveGameLocation.Text = saveGameLocation;
+            }
+            catch (Exception ex)
+            {
+                CustomErrorMessageBox("Error! Could not find the Dark Souls 3 directory.");
+                CustomErrorMessageBox(ex.ToString());
+                txtBox_darkSouls3SaveGameLocation.Text = "Error!";
+            }
 
         }
 
