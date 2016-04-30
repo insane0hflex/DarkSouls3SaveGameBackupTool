@@ -1,0 +1,21 @@
+﻿<Window x:Class="DarkSouls3SaveGameBackupTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DarkSouls3SaveGameBackupTool"
+        mc:Ignorable="d"
+        Title="Dark Souls 3 Save Game Backup Tool by svaalbard" Height="350" Width="525" ResizeMode="NoResize">
+    <Grid>
+        <Button x:Name="btn_startBackUpProcess" Content="Start" HorizontalAlignment="Left" Margin="20,79,0,0" VerticalAlignment="Top" Width="75" Click="btn_enableBackUpProcess_Click" />
+        <Button x:Name="btn_end" Content="Stop" HorizontalAlignment="Left" Margin="143,79,0,0" VerticalAlignment="Top" Width="75" Click="btn_endBackUpProcess_Click" />
+
+        <TextBox x:Name="txtBox_backupInterval" HorizontalAlignment="Left" Height="23" Margin="425,76,0,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="40" MaxLines="1" IsUndoEnabled="False" MaxLength="5" TextAlignment="Right" />
+        <Label x:Name="lbl_backupInterval" Content="Back Up Interval in minutes: " HorizontalAlignment="Left" Margin="260,76,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtBox_log" HorizontalAlignment="Left" Height="160" Margin="14,140,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="481" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+        <Label x:Name="lbl_log" Content="Program log:" HorizontalAlignment="Left" Margin="14,109,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtBox_darkSouls3SaveGameLocation" HorizontalAlignment="Left" Height="23" Margin="14,48,0,0" TextWrapping="Wrap" Text="Not yet set! Use the Set Location button." VerticalAlignment="Top" Width="481" IsEnabled="False" />
+        <Button x:Name="btn_openDarkSouls3GameSavesLocation" Content="Open Dark Souls 3 Saves Folder" HorizontalAlignment="Left" Margin="14,15,0,0" VerticalAlignment="Top" Width="220" Click="btn_openDarkSouls3GameSavesLocation_Click"/>
+
+    </Grid>
+</Window>
