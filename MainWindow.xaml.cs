@@ -28,7 +28,6 @@ namespace DarkSouls3SaveGameBackupTool
         {
             try
             {
-
                 string darkSoulsIIIBaseFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\DarkSoulsIII\";
 
                 var darkSoulIIISubFolders = Directory.GetDirectories(darkSoulsIIIBaseFolder);
