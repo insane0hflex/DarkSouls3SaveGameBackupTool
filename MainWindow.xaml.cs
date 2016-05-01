@@ -11,9 +11,12 @@ namespace DarkSouls3SaveGameBackupTool
     /// </summary>
     public partial class MainWindow : Window
     {
-        string saveGameLocation = ""; // Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +  @"\DarkSoulsIII\0110000104cb7884\";
+
+
+        private string saveGameLocation = ""; 
 
         DispatcherTimer dispatcherTimer = new DispatcherTimer();
+
 
         public MainWindow()
         {
@@ -21,9 +24,12 @@ namespace DarkSouls3SaveGameBackupTool
             btn_end.IsEnabled = false;
 
             SetDarkSouls3SaveGameLocation();
-
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void SetDarkSouls3SaveGameLocation()
         {
             try
@@ -45,6 +51,10 @@ namespace DarkSouls3SaveGameBackupTool
 
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void btn_enableBackUpProcess_Click(object sender, RoutedEventArgs e)
         {
             txtBox_log.AppendText(Environment.NewLine + "Starting backup process..." + Environment.NewLine);
@@ -60,6 +70,10 @@ namespace DarkSouls3SaveGameBackupTool
             btn_end.IsEnabled = true;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void btn_endBackUpProcess_Click(object sender, RoutedEventArgs e)
         {
             txtBox_log.AppendText(Environment.NewLine + "Stopped backup process..." + Environment.NewLine);
@@ -73,7 +87,9 @@ namespace DarkSouls3SaveGameBackupTool
         }
 
 
-        // Specify what you want to happen when the Elapsed event is raised.
+        /// <summary>
+        /// 
+        /// </summary>
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             txtBox_log.AppendText("Created a new backup: " + DateTime.Now.ToString() + Environment.NewLine);
@@ -96,6 +112,10 @@ namespace DarkSouls3SaveGameBackupTool
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private int GetTimeIntervalValue()
         {
             int timeInterval = 0;
@@ -153,6 +173,11 @@ namespace DarkSouls3SaveGameBackupTool
             MessageBox.Show(notificationMessage, "Notification", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_openDarkSouls3GameSavesLocation_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(saveGameLocation + "\\");
