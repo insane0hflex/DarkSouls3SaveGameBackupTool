@@ -9,7 +9,7 @@ __NOTE:__ Upon launching this program, if you are on Windows 10 - you might get 
 
 [Virus Total for v1 release](https://www.virustotal.com/en/file/69fefd118f30edc858810287587a849eac9cba94c9772c03959d753540f377d7/analysis/1462063233/)
 
-Qihoo360 is a bad AntiVirus with lots of false positives.
+Qihoo360 is a bad AntiVirus with lots of false positives. That AV seems to dislike in particular any C#/.NET 4.0+ project or something.
 
 ![DarkSouls3SaveGameBackupTool](https://github.com/insane0hflex/DarkSouls3SaveGameBackupTool/blob/master/exampleImage.jpg)
 
