@@ -16,3 +16,6 @@ Qihoo360 is a bad AntiVirus with lots of false positives. That AV seems to disli
 ToDos:
 
 - Make back up file name built with a human readable date rather than .ToFileTime()
+- Prettify the UI
+- Better code comments
+- Dark souls 2 support? 
