@@ -12,7 +12,7 @@ namespace DarkSouls3SaveGameBackupTool
     public partial class MainWindow : Window
     {
 
-
+        //Save game folder file path/location
         private string saveGameLocation = ""; 
 
         DispatcherTimer dispatcherTimer = new DispatcherTimer();
@@ -21,14 +21,15 @@ namespace DarkSouls3SaveGameBackupTool
         public MainWindow()
         {
             InitializeComponent();
-            btn_end.IsEnabled = false;
+            btn_endBackUpProcess.IsEnabled = false;
 
             SetDarkSouls3SaveGameLocation();
         }
 
 
         /// <summary>
-        /// 
+        /// Set on program start up and will be something like:
+        ///     C:\Users\USER_NAME\AppData\Roaming\DarkSoulsIII\HEX_NUMBER_GARBAGE
         /// </summary>
         private void SetDarkSouls3SaveGameLocation()
         {
@@ -38,13 +39,15 @@ namespace DarkSouls3SaveGameBackupTool
 
                 var darkSoulIIISubFolders = Directory.GetDirectories(darkSoulsIIIBaseFolder);
 
+                //The first directory should be the saves.
+                //Not sure if person has multiple users/steam profiles then the directories would be more than 1 to host the gameID
                 saveGameLocation = darkSoulIIISubFolders[0] + "\\";
 
                 txtBox_darkSouls3SaveGameLocation.Text = saveGameLocation;
             }
             catch (Exception ex)
             {
-                CustomErrorMessageBox("Error! Could not find the Dark Souls 3 directory.");
+                CustomErrorMessageBox("Error! Could not find the DarkSoulsIII folder. Looked for the DarkSoulsIII folder in: " + Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
                 CustomErrorMessageBox(ex.ToString());
                 txtBox_darkSouls3SaveGameLocation.Text = "Error!";
             }
@@ -67,7 +70,7 @@ namespace DarkSouls3SaveGameBackupTool
 
             dispatcherTimer.Start();
             btn_startBackUpProcess.IsEnabled = false;
-            btn_end.IsEnabled = true;
+            btn_endBackUpProcess.IsEnabled = true;
         }
 
 
@@ -82,7 +85,7 @@ namespace DarkSouls3SaveGameBackupTool
             //???? need to find a way to stop it from duplicating
             //dispatcherTimer.Dispatcher.DisableProcessing();
             btn_startBackUpProcess.IsEnabled = true;
-            btn_end.IsEnabled = false;
+            btn_endBackUpProcess.IsEnabled = false;
 
         }
 
@@ -108,14 +111,13 @@ namespace DarkSouls3SaveGameBackupTool
                 }
 
             }
-
         }
 
 
         /// <summary>
         /// 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>the interval - should be used as minutes so wont be greater than 59 and less than 1</returns>
         private int GetTimeIntervalValue()
         {
             int timeInterval = 0;
@@ -174,10 +176,8 @@ namespace DarkSouls3SaveGameBackupTool
         }
 
         /// <summary>
-        /// 
+        /// Open DarkSoulsIII savegame folder.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btn_openDarkSouls3GameSavesLocation_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(saveGameLocation + "\\");
