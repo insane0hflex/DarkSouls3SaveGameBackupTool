@@ -24,6 +24,9 @@ namespace DarkSouls3SaveGameBackupTool
             InitializeComponent();
             btn_endBackUpProcess.IsEnabled = false;
 
+            //avoid duplication of ticks
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+
             GetTimeIntervalAppSetting();
 
             SetDarkSouls3SaveGameLocation();
@@ -64,30 +67,32 @@ namespace DarkSouls3SaveGameBackupTool
         private void btn_enableBackUpProcess_Click(object sender, RoutedEventArgs e)
         {
             txtBox_log.AppendText("Starting backup process." + Environment.NewLine);
-            txtBox_log.AppendText("Creating a backup every " + GetTimeIntervalValue() + " minutes.");
-            dispatcherTimer.Tick += dispatcherTimer_Tick;
+            txtBox_log.AppendText("Creating a backup every " + GetTimeIntervalValue() + " minutes." + Environment.NewLine);
 
+
+            //backupInterval in minutes
             int backupInterval = GetTimeIntervalValue();
-
             dispatcherTimer.Interval = new TimeSpan(0, backupInterval, 0);
 
-
             dispatcherTimer.Start();
+
             btn_startBackUpProcess.IsEnabled = false;
             btn_endBackUpProcess.IsEnabled = true;
         }
 
 
         /// <summary>
-        /// 
+        /// Stop the dispatcherTimer to stop creating back ups
         /// </summary>
         private void btn_endBackUpProcess_Click(object sender, RoutedEventArgs e)
         {
             txtBox_log.AppendText(Environment.NewLine + "Stopped backup process..." + Environment.NewLine);
+            txtBox_log.AppendText("-----------------------------------------------" + Environment.NewLine);
+
+
             dispatcherTimer.Stop();
 
             //???? need to find a way to stop it from duplicating
-            //dispatcherTimer.Dispatcher.DisableProcessing();
             btn_startBackUpProcess.IsEnabled = true;
             btn_endBackUpProcess.IsEnabled = false;
 
@@ -110,6 +115,9 @@ namespace DarkSouls3SaveGameBackupTool
             try
             {
                 File.Copy(saveGameLocation + "DS30000.sl2", saveGameLocation + dateOfBackupForFileName + "__DS30000.sl2.bak");
+
+                txtBox_log.ScrollToEnd();
+
             }
             catch (Exception ex)
             {
@@ -158,7 +166,7 @@ namespace DarkSouls3SaveGameBackupTool
                     dispatcherTimer.Stop();
                 }
 
-                //default back to 15
+                //default back to 15 minutes for time interval
                 txtBox_backupInterval.Text = "15";
 
                 return 15;
@@ -188,7 +196,7 @@ namespace DarkSouls3SaveGameBackupTool
 
         
         /// <summary>
-        /// Open DarkSoulsIII savegame folder.
+        /// Open DarkSoulsIII savegame folder in Windows explorer
         /// </summary>
         private void btn_openDarkSouls3GameSavesLocation_Click(object sender, RoutedEventArgs e)
         {
