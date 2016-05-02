@@ -12,7 +12,7 @@ To restore a backup, delete your `DS30000.sl2` file and rename the backup of you
 
 Please note that you will start the backup process by pressing the "Start" button. Then start up Dark Souls 3 and play. When you are done playing, do __not__ forget to press the Stop button or close the DarkSouls3SaveGameBackupTool program. Otherwise, it will continually copy every time interval until stopped.
 
-### [Download the latest release - v2](https://github.com/insane0hflex/DarkSouls3SaveGameBackupTool/blob/master/Releases/DarkSouls3SaveGameBackupTool.exe?raw=true)
+### [Download the latest release - v2](https://github.com/insane0hflex/DarkSouls3SaveGameBackupTool/blob/master/DarkSouls3SaveGameBackupTool_version2.zip?raw=true)
 
 __NOTE:__ Upon launching this program, if you are on Windows 10 - you might get a "security" warning. Press the "More info" button then press "Run anyway".
 
