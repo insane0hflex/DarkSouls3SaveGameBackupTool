@@ -14,8 +14,8 @@ Qihoo360 is a bad AntiVirus with lots of false positives. That AV seems to disli
 ![DarkSouls3SaveGameBackupTool](https://github.com/insane0hflex/DarkSouls3SaveGameBackupTool/blob/master/exampleImage.jpg)
 
 ToDos:
-- Store TimeInterval setting for user - http://www.codeproject.com/Articles/25829/User-Settings-Applied
-- Make back up file name built with a human readable date rather than .ToFileTime()
+- ~~Store TimeInterval setting for user~~
+- ~~Make back up file name built with a human readable date rather than .ToFileTime()~~
 - Prettify the UI
 - Better code comments
 - Dark souls 2 support? 
