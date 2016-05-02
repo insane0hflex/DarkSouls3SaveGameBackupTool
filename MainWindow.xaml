@@ -11,8 +11,8 @@
         <Button x:Name="btn_endBackUpProcess" Content="Stop" HorizontalAlignment="Left" ToolTip="Stop creating backups" Margin="150,86,0,0" VerticalAlignment="Top" Width="75" Click="btn_endBackUpProcess_Click" />
 
         <TextBox x:Name="txtBox_backupInterval" HorizontalAlignment="Left" Height="23" Margin="412,86,0,0" TextWrapping="Wrap" Text="15" VerticalAlignment="Top" Width="24" MaxLines="1" MaxLength="2" AcceptsReturn="False" AcceptsTab="False" TextAlignment="Right" />
-        <Label x:Name="lbl_backupInterval" Content="Back Up Interval in minutes: " HorizontalAlignment="Left" Margin="260,83,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtBox_log" HorizontalAlignment="Left" Height="160" Margin="14,140,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="481" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+        <Label x:Name="lbl_backupInterval" Content="Back Up Interval in minutes: " HorizontalAlignment="Left" Margin="260,84,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtBox_log" HorizontalAlignment="Left" Height="160" Margin="14,140,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="481" ScrollViewer.VerticalScrollBarVisibility="Visible" IsReadOnly="True" />
         <Label x:Name="lbl_log" Content="Program log:" HorizontalAlignment="Left" Margin="14,114,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="txtBox_darkSouls3SaveGameLocation" HorizontalAlignment="Left" Height="23" Margin="14,48,0,0" TextWrapping="Wrap" Text="Error" VerticalAlignment="Top" Width="481" IsEnabled="False" />
         <Button x:Name="btn_openDarkSouls3GameSavesLocation" Content="Open Dark Souls 3 Saves Folder" HorizontalAlignment="Left" Margin="14,15,0,0" VerticalAlignment="Top" Width="220" Click="btn_openDarkSouls3GameSavesLocation_Click"/>
