@@ -3,6 +3,7 @@ using System.Windows;
 using System.IO;
 using System.Windows.Threading;
 using System.Diagnostics;
+using System.Configuration;
 
 namespace DarkSouls3SaveGameBackupTool
 {
@@ -22,6 +23,8 @@ namespace DarkSouls3SaveGameBackupTool
         {
             InitializeComponent();
             btn_endBackUpProcess.IsEnabled = false;
+
+            GetTimeIntervalAppSetting();
 
             SetDarkSouls3SaveGameLocation();
         }
@@ -60,7 +63,8 @@ namespace DarkSouls3SaveGameBackupTool
         /// </summary>
         private void btn_enableBackUpProcess_Click(object sender, RoutedEventArgs e)
         {
-            txtBox_log.AppendText(Environment.NewLine + "Starting backup process..." + Environment.NewLine);
+            txtBox_log.AppendText("Starting backup process." + Environment.NewLine);
+            txtBox_log.AppendText("Creating a backup every " + GetTimeIntervalValue() + " minutes.");
             dispatcherTimer.Tick += dispatcherTimer_Tick;
 
             int backupInterval = GetTimeIntervalValue();
@@ -97,9 +101,15 @@ namespace DarkSouls3SaveGameBackupTool
         {
             txtBox_log.AppendText("Created a new backup: " + DateTime.Now.ToString() + Environment.NewLine);
 
+
+            string dateOfBackupForFileName = DateTime.Now.ToString("M/d/yyyy HH:mm");
+
+            //Remove spaces, : and / from dateOfBackupForFileName and replace with underscore
+            dateOfBackupForFileName = System.Text.RegularExpressions.Regex.Replace(dateOfBackupForFileName, @"[:|/|\s]", "_");
+
             try
             {
-                File.Copy(saveGameLocation + "DS30000.sl2", saveGameLocation + DateTime.Now.ToFileTime() + "__DS30000.sl2.bak");
+                File.Copy(saveGameLocation + "DS30000.sl2", saveGameLocation + dateOfBackupForFileName + "__DS30000.sl2.bak");
             }
             catch (Exception ex)
             {
@@ -115,7 +125,7 @@ namespace DarkSouls3SaveGameBackupTool
 
 
         /// <summary>
-        /// 
+        /// Gets the time interval for creating a backup in minutes. Value has to be within 1 to 59.
         /// </summary>
         /// <returns>the interval - should be used as minutes so wont be greater than 59 and less than 1</returns>
         private int GetTimeIntervalValue()
@@ -160,27 +170,109 @@ namespace DarkSouls3SaveGameBackupTool
         /// <summary>
         /// A custom Error MessageBox that has an Error Icon
         /// </summary>
-        /// <param name="errorMessage"></param>
+        /// <param name="errorMessage">error message to display</param>
         public void CustomErrorMessageBox(string errorMessage)
         {
             MessageBox.Show(errorMessage, "Error!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
         }
 
+        
         /// <summary>
         /// A custom Notification MessageBox with an info icon
         /// </summary>
-        /// <param name="notificationMessage"></param>
+        /// <param name="notificationMessage">notification message to display</param>
         public void CustomNotificationMessageBox(string notificationMessage)
         {
             MessageBox.Show(notificationMessage, "Notification", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
+        
         /// <summary>
         /// Open DarkSoulsIII savegame folder.
         /// </summary>
         private void btn_openDarkSouls3GameSavesLocation_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(saveGameLocation + "\\");
+        }
+
+
+        /// <summary>
+        /// Display help and about info. Like how to restore a save game.
+        /// </summary>
+        private void btn_help_Click(object sender, RoutedEventArgs e)
+        {
+            string message = "";
+
+            message += "Dark Souls 3 Save Game Backup Tool v2.0";
+            message += Environment.NewLine;
+            message += "by Svaalbard";
+            message += Environment.NewLine;
+            message += Environment.NewLine;
+            message += "To restore a save game, rename the file from something like: ";
+            message += Environment.NewLine;
+            message += "5_2_2016_07_29__DS30000.sl2.bak";
+            message += Environment.NewLine;
+            message += "to";
+            message += Environment.NewLine;
+            message += "DS30000.sl2";
+            message += Environment.NewLine;
+            message += Environment.NewLine;
+            message += "You might need to turn on file extensions in Windows to see the .bak file extension and remove it.";
+            message += Environment.NewLine;
+            message += "Google: \"Show or hide file name extensions\" for help on how to enable this.";
+
+            CustomNotificationMessageBox(message);
+        }
+
+
+
+        private void SaveTimeIntervalSetting()
+        {
+            try
+            {
+                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+                config.AppSettings.Settings["TimeInterval"].Value = GetTimeIntervalValue().ToString();
+
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
+
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = "Error! Looks like you deleted the DarkSouls3SaveGameBackupTool.exe.Config file.";
+                errorMessage += "Please make sure this file is in the same directory as DarkSouls3SaveGameBackupTool.exe.";
+
+                CustomErrorMessageBox(errorMessage);
+                CustomErrorMessageBox(ex.ToString());
+            }
+        }
+
+
+
+        private void GetTimeIntervalAppSetting()
+        {
+            try
+            {
+                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+                txtBox_backupInterval.Text = config.AppSettings.Settings["TimeInterval"].Value;
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = "Error! Looks like you deleted the DarkSouls3SaveGameBackupTool.exe.Config file.";
+                errorMessage += "Please make sure this file is in the same directory as DarkSouls3SaveGameBackupTool.exe.";
+
+                CustomErrorMessageBox(errorMessage);
+                CustomErrorMessageBox(ex.ToString());
+            }
+        }
+
+
+
+        private void btn_saveTimeInterval_Click(object sender, RoutedEventArgs e)
+        {
+            SaveTimeIntervalSetting();
         }
     }
 }
