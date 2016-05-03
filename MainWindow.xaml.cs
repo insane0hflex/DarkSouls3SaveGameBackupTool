@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.IO;
 using System.Windows.Threading;
@@ -27,10 +27,49 @@ namespace DarkSouls3SaveGameBackupTool
             //avoid duplication of ticks
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
 
-            GetTimeIntervalAppSetting();
+
+            if(!File.Exists("DarkSouls3SaveGameBackupTool.exe.config"))
+            {
+                CreateAppConfigFile();
+            }
+
+            txtBox_backupInterval.Text = GetTimeIntervalAppSetting();
 
             SetDarkSouls3SaveGameLocation();
         }
+
+
+        /// <summary>
+        /// If user moved the .exe without copying over the .exe.config file - recreate it with default values.
+        /// </summary>
+        private void CreateAppConfigFile()
+        {
+            string errorMessage = "DarkSouls3SaveGameBackupTool.exe.config doesn't exist."
+                                + Environment.NewLine + "Please do not delete it. " + Environment.NewLine + "Creating a new one...";
+
+            CustomNotificationMessageBox(errorMessage);
+
+            try
+            {
+                using (var appConfigFile = File.CreateText("DarkSouls3SaveGameBackupTool.exe.config"))
+                {
+                    appConfigFile.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
+                    appConfigFile.WriteLine("<configuration>");
+                    appConfigFile.WriteLine("    <startup>");
+                    appConfigFile.WriteLine("        <supportedRuntime version=\"v4.0\" sku=\".NETFramework,Version=v4.6.1\" />");
+                    appConfigFile.WriteLine("    </startup>");
+                    appConfigFile.WriteLine("<appSettings>");
+                    appConfigFile.WriteLine("    <add key=\"TimeInterval\" value=\"15\" />");
+                    appConfigFile.WriteLine("</appSettings>");
+                    appConfigFile.WriteLine("</configuration>");
+                }
+            }
+            catch (Exception ex)
+            {
+                CustomErrorMessageBox(ex.ToString());
+            }
+        }
+
 
 
         /// <summary>
@@ -217,27 +256,25 @@ namespace DarkSouls3SaveGameBackupTool
         /// </summary>
         private void btn_help_Click(object sender, RoutedEventArgs e)
         {
-            string message = "";
+            System.Text.StringBuilder message = new System.Text.StringBuilder();
 
-            message += "Dark Souls 3 Save Game Backup Tool v2.0";
-            message += Environment.NewLine;
-            message += "by Svaalbard";
-            message += Environment.NewLine;
-            message += Environment.NewLine;
-            message += "To restore a save game, rename the file from something like: ";
-            message += Environment.NewLine;
-            message += "5_2_2016_07_29__DS30000.sl2.bak";
-            message += Environment.NewLine;
-            message += "to";
-            message += Environment.NewLine;
-            message += "DS30000.sl2";
-            message += Environment.NewLine;
-            message += Environment.NewLine;
-            message += "You might need to turn on file extensions in Windows to see the .bak file extension and remove it.";
-            message += Environment.NewLine;
-            message += "Google: \"Show or hide file name extensions\" for help on how to enable this.";
+            message.AppendLine("Dark Souls 3 Save Game Backup Tool v2.1");
 
-            CustomNotificationMessageBox(message);
+            message.AppendLine("by Svaalbard");
+            message.AppendLine();
+
+            message.AppendLine("To restore a save game, rename the file from something like: ");
+            message.AppendLine("\t5_2_2016_07_29__DS30000.sl2.bak");
+            message.AppendLine("to:");
+            message.AppendLine("\tDS30000.sl2");
+            message.AppendLine();
+
+            message.AppendLine("You might need to turn on file extensions in Windows to see the .bak file extension and remove it.");
+            message.AppendLine();
+
+            message.AppendLine("Google: \"Show or hide file name extensions\" for help on how to enable this.");
+
+            CustomNotificationMessageBox(message.ToString());
         }
 
 
@@ -271,21 +308,23 @@ namespace DarkSouls3SaveGameBackupTool
         /// Get the TimeInterval app.config setting
         /// Also set the txtBox_backupInterval Text with the TimeInterval app.config setting.
         /// </summary>
-        private void GetTimeIntervalAppSetting()
+        private string GetTimeIntervalAppSetting()
         {
             try
             {
                 Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-                txtBox_backupInterval.Text = config.AppSettings.Settings["TimeInterval"].Value;
+                return config.AppSettings.Settings["TimeInterval"].Value;
             }
             catch (Exception ex)
             {
-                string errorMessage = "Error! Looks like you deleted the DarkSouls3SaveGameBackupTool.exe.Config file.";
-                errorMessage += "Please make sure this file is in the same directory as DarkSouls3SaveGameBackupTool.exe.";
+                string errorMessage = "Error! Looks like you deleted the DarkSouls3SaveGameBackupTool.exe.config file."
+                                    + "Please make sure this file is in the same directory as DarkSouls3SaveGameBackupTool.exe.";
 
                 CustomErrorMessageBox(errorMessage);
                 CustomErrorMessageBox(ex.ToString());
+
+                return "ERROR!";
             }
         }
 
