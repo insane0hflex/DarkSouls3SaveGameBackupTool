@@ -1,6 +1,6 @@
 # DarkSouls3SaveGameBackupTool
 
-A program that creates backups of save games of Dark Souls 3.
+A program that creates backups of Dark Souls 3 saves every 15 minutes by default. Can customize the back up time interval to be between 1 to 59 minutes.
 
 Back ups are created in the following format (hours in 24HR military time format):
 
@@ -20,7 +20,7 @@ __NOTE:__ Upon launching this program, if you are on Windows 10 - you might get 
 
 Please ignore the Qihoo360 false positive - this antivirus seems to dislike any C#/.NET 4.0+ project or something, which this program was created with.
 
-![DarkSouls3SaveGameBackupTool](https://github.com/insane0hflex/DarkSouls3SaveGameBackupTool/blob/master/exampleImage.jpg)
+![DarkSouls3SaveGameBackupTool](https://github.com/insane0hflex/DarkSouls3SaveGameBackupTool/blob/master/exampleImage.png)
 
 ### ToDos
 - ~~Store TimeInterval setting for user~~
