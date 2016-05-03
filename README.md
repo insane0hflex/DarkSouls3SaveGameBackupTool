@@ -1,6 +1,6 @@
 # DarkSouls3SaveGameBackupTool
 
-A program that creates backups of Dark Souls 3 saves every 15 minutes by default. Can customize the back up time interval to be between 1 to 59 minutes.
+A program that creates backups of your Dark Souls 3 save every 15 minutes by default. Can customize the back up time interval to be between 1 to 59 minutes.
 
 Back ups are created in the following format (hours in 24HR military time format):
 
@@ -14,11 +14,7 @@ Please note that you will start the backup process by pressing the "Start" butto
 
 ### [Download the latest release - v2](https://github.com/insane0hflex/DarkSouls3SaveGameBackupTool/blob/master/DarkSouls3SaveGameBackupTool_version2.zip?raw=true)
 
-__NOTE:__ Upon launching this program, if you are on Windows 10 - you might get a "security" warning. Press the "More info" button then press "Run anyway".
-
-[VirusTotal report for DarkSouls3SaveGameBackupTool](https://www.virustotal.com/en/file/69fefd118f30edc858810287587a849eac9cba94c9772c03959d753540f377d7/analysis/1462063233/)
-
-Please ignore the Qihoo360 false positive - this antivirus seems to dislike any C#/.NET 4.0+ project or something, which this program was created with.
+Important note: Do not delete or remove the `DarkSouls3SaveGameBackupTool.exe.config` file. This stores the time interval setting. It must be in the same folder as the `DarkSouls3SaveGameBackupTool.exe` file.
 
 ![DarkSouls3SaveGameBackupTool](https://github.com/insane0hflex/DarkSouls3SaveGameBackupTool/blob/master/exampleImage.png)
 
@@ -27,12 +23,15 @@ Please ignore the Qihoo360 false positive - this antivirus seems to dislike any 
 - ~~Make back up file name built with a human readable date rather than .ToFileTime()~~
 - Prettify the UI
 - ~~Better code comments~~
-- Dark souls 2 support? 
 - Keep a "MaxBackup" amount - like 10 - where older backups above 10 are automatically deleted.
 - Create a check for the `.exe.config` file and create it if it doesn't exist
+- Restore save from backup feature (instead of user manually deleting the old save and renaming a backup to `DS30000.sl2`
+
 
 ### Build Instructions
 
-Want to build the source for this?
+Want to build from source?
 
-Download the source then simply open the solution file (you will need Visual Studio installed, at least .NET Framework 4.0 installed) and build. You can get [Visual Studio Community](https://www.visualstudio.com/en-us/visual-studio-homepage-vs.aspx) for free.
+Download/fork this repo then open the solution file (you will need Visual Studio installed with at least .NET Framework 4.0 installed) and build. You can get [Visual Studio Community](https://www.visualstudio.com/en-us/visual-studio-homepage-vs.aspx) for free. Once you build, the binary (.exe file) is located in /bin/Debug/ folder.
+
+
