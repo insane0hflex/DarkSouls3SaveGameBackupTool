@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.IO;
 using System.Windows.Threading;
 using System.Diagnostics;
 using System.Configuration;
+using System.Windows.Media;
 
 namespace DarkSouls3SaveGameBackupTool
 {
@@ -18,11 +19,34 @@ namespace DarkSouls3SaveGameBackupTool
 
         DispatcherTimer dispatcherTimer = new DispatcherTimer();
 
+        //pale yellow to simulate DarkSouls3 like UI color scheme
+        Color paleYellow = new Color();
+
+        //the actual Colors.DarkGray isn't actually darker (more black) than regular Colors.Gray...
+        //so this is a color that is inbetween gray and black
+        Color deepGray = new Color();
+
 
         public MainWindow()
         {
             InitializeComponent();
-            btn_endBackUpProcess.IsEnabled = false;
+
+            //0xFFF5EECF == pale yellow like color
+            paleYellow.A = 0xFF;
+            paleYellow.R = 0xF5;
+            paleYellow.G = 0xEE;
+            paleYellow.B = 0xCF;
+
+            //0xFF515151
+            deepGray.A = 0xFF;
+            deepGray.R = 0x51;
+            deepGray.G = 0x51;
+            deepGray.B = 0x51;
+
+
+            Disable_btnEndBackUpProcess();
+            btn_startBackUpProcess.FontWeight = FontWeights.Bold;
+
 
             //avoid duplication of ticks
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -45,7 +69,8 @@ namespace DarkSouls3SaveGameBackupTool
         private void CreateAppConfigFile()
         {
             string errorMessage = "DarkSouls3SaveGameBackupTool.exe.config doesn't exist."
-                                + Environment.NewLine + "Please do not delete it. " + Environment.NewLine + "Creating a new one...";
+                                + Environment.NewLine + "Please do not delete it. " 
+                                + Environment.NewLine + "Creating a new one...";
 
             CustomNotificationMessageBox(errorMessage);
 
@@ -120,10 +145,9 @@ namespace DarkSouls3SaveGameBackupTool
 
             dispatcherTimer.Start();
 
-            btn_startBackUpProcess.IsEnabled = false;
-            btn_endBackUpProcess.IsEnabled = true;
+            Enable_btnEndBackUpProcess();
+            Disable_btnStartBackUpProcess();
             txtBox_backupInterval.IsEnabled = false;
-
             txtBox_log.ScrollToEnd();
         }
 
@@ -139,12 +163,45 @@ namespace DarkSouls3SaveGameBackupTool
 
             dispatcherTimer.Stop();
 
-            btn_startBackUpProcess.IsEnabled = true;
-            btn_endBackUpProcess.IsEnabled = false;
-            txtBox_backupInterval.IsEnabled = true;
+            Enable_btnStartBackUpProcess();
+            Disable_btnEndBackUpProcess();
 
+            txtBox_backupInterval.IsEnabled = true;
             txtBox_log.ScrollToEnd();
         }
+
+        //The following methods color and enable/disable the "Start" and "Stop" buttons
+        #region Color and Enable/Disable Start and Stop Buttons
+        private void Enable_btnStartBackUpProcess()
+        {
+            btn_startBackUpProcess.FontWeight = FontWeights.Bold;
+            btn_startBackUpProcess.IsEnabled = true;
+            btn_startBackUpProcess.Background = new SolidColorBrush(deepGray);
+            btn_startBackUpProcess.Foreground = new SolidColorBrush(paleYellow);
+        }
+        private void Disable_btnStartBackUpProcess()
+        {
+            btn_startBackUpProcess.FontWeight = FontWeights.Normal;
+            btn_startBackUpProcess.IsEnabled = false;
+            btn_startBackUpProcess.Background = new SolidColorBrush(Colors.Gray);
+            btn_startBackUpProcess.Foreground = new SolidColorBrush(Colors.Black);
+        }
+        private void Enable_btnEndBackUpProcess()
+        {
+            btn_endBackUpProcess.FontWeight = FontWeights.Bold;
+            btn_endBackUpProcess.IsEnabled = true;
+            btn_endBackUpProcess.Background = new SolidColorBrush(deepGray);
+            btn_endBackUpProcess.Foreground = new SolidColorBrush(paleYellow);
+        }
+        private void Disable_btnEndBackUpProcess()
+        {
+            btn_endBackUpProcess.FontWeight = FontWeights.Normal;
+            btn_endBackUpProcess.IsEnabled = false;
+            btn_endBackUpProcess.Background = new SolidColorBrush(Colors.Gray);
+            btn_endBackUpProcess.Foreground = new SolidColorBrush(Colors.Black);
+        }
+
+        #endregion
 
 
         /// <summary>
@@ -152,18 +209,31 @@ namespace DarkSouls3SaveGameBackupTool
         /// </summary>
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            txtBox_log.AppendText("Created a new backup: " + DateTime.Now.ToString() + Environment.NewLine);
+            //check for DarkSoulsIII process so that no back ups are made if the game isnt running
+            //thanks Tenchuu on the NexusMods site for this code suggestion!
+            Process[] dsIIIProcesses = Process.GetProcessesByName("DarkSoulsIII");
 
+            //dsIIIProcesses == 0 means no DarkSoulsIII process is running
+            if (dsIIIProcesses.Length == 0)
+            {
+                txtBox_log.AppendText("Dark Souls III is not running. Skipping backup creation: " + DateTime.Now.ToString() + Environment.NewLine);
+                txtBox_log.ScrollToEnd();
+                return;
+            }
 
-            string dateOfBackupForFileName = DateTime.Now.ToString("M/d/yyyy HH:mm");
-
-            //Remove spaces, : and / from dateOfBackupForFileName and replace with underscore
-            dateOfBackupForFileName = System.Text.RegularExpressions.Regex.Replace(dateOfBackupForFileName, @"[:|/|\s]", "_");
 
             try
             {
+                //human readable date for file backup - M/DD/YYYY 24H:MM
+                string dateOfBackupForFileName = DateTime.Now.ToString("M/d/yyyy HH:mm");
+
+                //Remove spaces, : and / from dateOfBackupForFileName and replace with underscore
+                dateOfBackupForFileName = System.Text.RegularExpressions.Regex.Replace(dateOfBackupForFileName, @"[:|/|\s]", "_");
+
+
                 File.Copy(saveGameLocation + "DS30000.sl2", saveGameLocation + dateOfBackupForFileName + "__DS30000.sl2.bak");
 
+                txtBox_log.AppendText("Created a new backup: " + DateTime.Now.ToString() + Environment.NewLine);
                 txtBox_log.ScrollToEnd();
             }
             catch (Exception ex)
@@ -193,11 +263,11 @@ namespace DarkSouls3SaveGameBackupTool
 
                 if (timeInterval < 1)
                 {
-                    throw new Exception("Time interval cannot be less than 1 minute!");
+                    throw new Exception("Time interval cannot be less than 1 minute! Defaulting to 15 minutes...");
                 }
                 else if (timeInterval > 59)
                 {
-                    throw new Exception("Time interval cannot be more than 59 minutes!");
+                    throw new Exception("Time interval cannot be more than 59 minutes! Defaulting to 15 minutes...");
                 }
 
                 return timeInterval;
@@ -336,5 +406,8 @@ namespace DarkSouls3SaveGameBackupTool
         {
             SaveTimeIntervalAppSetting();
         }
+
+
+
     }
 }
