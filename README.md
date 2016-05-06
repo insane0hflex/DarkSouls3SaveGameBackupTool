@@ -1,4 +1,4 @@
-# DarkSouls3SaveGameBackupTool
+# Dark Souls 3 Save Game Backup Tool
 
 A program that creates backups of your Dark Souls 3 save every 15 minutes by default. Can customize the back up time interval to be between 1 to 59 minutes.
 
