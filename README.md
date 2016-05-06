@@ -1,6 +1,4 @@
-# Dark Souls 3 Save Game Backup Tool
-
-__Automatically backup your Dark Souls 3 saves__
+# DarkSouls3SaveGameBackupTool
 
 A program that creates backups of your Dark Souls 3 save every 15 minutes by default. Can customize the back up time interval to be between 1 to 59 minutes.
 
@@ -25,11 +23,11 @@ Important note: Do not delete or remove the `DarkSouls3SaveGameBackupTool.exe.co
 ### ToDos
 - ~~Store TimeInterval setting for user~~
 - ~~Make back up file name built with a human readable date rather than .ToFileTime()~~
-- ~~Prettify the UI~~
+- Prettify the UI
 - ~~Better code comments~~
-- ~~Create a check for the `.exe.config` file and create it if it doesn't exist~~
-- ~~Restore save from backup feature (instead of user manually deleting the old save and renaming a backup to `DS30000.sl2`~~
 - Keep a "MaxBackup" amount - like 10 - where older backups above 10 are automatically deleted.
+- Create a check for the `.exe.config` file and create it if it doesn't exist
+- Restore save from backup feature (instead of user manually deleting the old save and renaming a backup to `DS30000.sl2`
 
 
 ### Build Instructions

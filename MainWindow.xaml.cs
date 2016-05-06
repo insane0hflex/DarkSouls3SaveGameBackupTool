@@ -23,7 +23,7 @@ namespace DarkSouls3SaveGameBackupTool
         Color paleYellow = new Color();
 
         //the actual Colors.DarkGray isn't actually darker (more black) than regular Colors.Gray...
-        //so this is a color that is inbetween gray and black
+        //so this is a color that is inbetween gray and black for use for the UI
         Color deepGray = new Color();
 
 
@@ -48,7 +48,7 @@ namespace DarkSouls3SaveGameBackupTool
             btn_startBackUpProcess.FontWeight = FontWeights.Bold;
 
 
-            //avoid duplication of ticks
+            //avoid duplication of ticks - assign eventhandler for tick on init
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
 
 
@@ -135,7 +135,7 @@ namespace DarkSouls3SaveGameBackupTool
         /// </summary>
         private void btn_enableBackUpProcess_Click(object sender, RoutedEventArgs e)
         {
-            txtBox_log.AppendText("Starting backup process. " + DateTime.Now.ToString() + Environment.NewLine);
+            txtBox_log.AppendText("Starting backup process. \t\t" + DateTime.Now.ToString() + Environment.NewLine);
             txtBox_log.AppendText("Creating a backup every " + GetTimeIntervalValue() + " minutes." + Environment.NewLine);
 
 
@@ -157,8 +157,7 @@ namespace DarkSouls3SaveGameBackupTool
         /// </summary>
         private void btn_endBackUpProcess_Click(object sender, RoutedEventArgs e)
         {
-            txtBox_log.AppendText(Environment.NewLine + "Stopped backup process... " + DateTime.Now.ToString() + Environment.NewLine);
-            txtBox_log.AppendText("-----------------------------------------------" + Environment.NewLine + Environment.NewLine);
+            txtBox_log.AppendText(Environment.NewLine + "Stopped backup process. \t\t" + DateTime.Now.ToString() + Environment.NewLine + Environment.NewLine);
 
 
             dispatcherTimer.Stop();
@@ -184,7 +183,7 @@ namespace DarkSouls3SaveGameBackupTool
             btn_startBackUpProcess.FontWeight = FontWeights.Normal;
             btn_startBackUpProcess.IsEnabled = false;
             btn_startBackUpProcess.Background = new SolidColorBrush(Colors.Gray);
-            btn_startBackUpProcess.Foreground = new SolidColorBrush(Colors.Black);
+            btn_startBackUpProcess.Foreground = new SolidColorBrush(Colors.LightGray);
         }
         private void Enable_btnEndBackUpProcess()
         {
@@ -198,7 +197,7 @@ namespace DarkSouls3SaveGameBackupTool
             btn_endBackUpProcess.FontWeight = FontWeights.Normal;
             btn_endBackUpProcess.IsEnabled = false;
             btn_endBackUpProcess.Background = new SolidColorBrush(Colors.Gray);
-            btn_endBackUpProcess.Foreground = new SolidColorBrush(Colors.Black);
+            btn_endBackUpProcess.Foreground = new SolidColorBrush(Colors.LightGray);
         }
 
         #endregion
@@ -216,7 +215,9 @@ namespace DarkSouls3SaveGameBackupTool
             //dsIIIProcesses == 0 means no DarkSoulsIII process is running
             if (dsIIIProcesses.Length == 0)
             {
-                txtBox_log.AppendText("Dark Souls III is not running. Skipping backup creation: " + DateTime.Now.ToString() + Environment.NewLine);
+                txtBox_log.AppendText("Dark Souls III is not running!" + Environment.NewLine 
+                                        + "\tSkipping backup creation: \t" + DateTime.Now.ToString() + Environment.NewLine);
+
                 txtBox_log.ScrollToEnd();
                 return;
             }
@@ -233,7 +234,7 @@ namespace DarkSouls3SaveGameBackupTool
 
                 File.Copy(saveGameLocation + "DS30000.sl2", saveGameLocation + dateOfBackupForFileName + "__DS30000.sl2.bak");
 
-                txtBox_log.AppendText("Created a new backup: " + DateTime.Now.ToString() + Environment.NewLine);
+                txtBox_log.AppendText("Created a new backup:\t\t" + DateTime.Now.ToString() + Environment.NewLine);
                 txtBox_log.ScrollToEnd();
             }
             catch (Exception ex)
@@ -333,7 +334,7 @@ namespace DarkSouls3SaveGameBackupTool
             message.AppendLine("by Svaalbard");
             message.AppendLine();
 
-            message.AppendLine("To restore a save game, rename the file from something like: ");
+            message.AppendLine("To restore a save game, either use the \"Restore a Save\" button, or do it manually by renaming the file from something like: ");
             message.AppendLine("\t5_2_2016_07_29__DS30000.sl2.bak");
             message.AppendLine("to:");
             message.AppendLine("\tDS30000.sl2");
@@ -357,10 +358,14 @@ namespace DarkSouls3SaveGameBackupTool
             {
                 Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-                config.AppSettings.Settings["TimeInterval"].Value = GetTimeIntervalValue().ToString();
+                string timeIntervalSetting = GetTimeIntervalValue().ToString();
+
+                config.AppSettings.Settings["TimeInterval"].Value = timeIntervalSetting;
 
                 config.Save(ConfigurationSaveMode.Modified);
                 ConfigurationManager.RefreshSection("appSettings");
+
+                txtBox_log.AppendText("Saved Time Interval setting: " + timeIntervalSetting + "\t" + DateTime.Now.ToString() + Environment.NewLine);
 
             }
             catch (Exception ex)
@@ -407,6 +412,56 @@ namespace DarkSouls3SaveGameBackupTool
             SaveTimeIntervalAppSetting();
         }
 
+
+        /// <summary>
+        /// Restore a .bak file to replace the DS30000.sl2 file.
+        /// Maybe backup the DS30000.sl2 file into a "DeletedByRestoreSave" folder...
+        /// </summary>
+        private void btn_restoreSave_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
+
+            fileDialog.Filter = "Dark Souls 3 Save Game Backups (.bak)|*.bak";
+            fileDialog.InitialDirectory = saveGameLocation;
+
+            bool? result = fileDialog.ShowDialog();
+
+            //user selected a file to use as the backup
+            if (result == true)
+            {
+                string backupChoiceFileName = fileDialog.FileName;
+
+                string deleteConfirmationMessage = "Are you sure? This will DELETE DS30000.sl2 (your current save file) and replace it with: "
+                                                 + Environment.NewLine + Path.GetFileName(backupChoiceFileName);
+
+                MessageBoxResult messageBoxResult = MessageBox.Show(deleteConfirmationMessage, "Delete DS30000.sl2 Confirmation", MessageBoxButton.YesNo);
+
+                if (messageBoxResult == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        //back up the original incase user error idea...
+                        //Directory.CreateDirectory(saveGameLocation + "RestoredSaveBackups
+                        //File.Copy(saveGameLocation + "DS30000.sl2", saveGameLocation + "\\RestoredSaveBackups\\" + "DeletedSave__DS30000.sl2.bak");
+
+                        File.Delete(saveGameLocation + "DS30000.sl2");
+                        txtBox_log.AppendText("Deleted DS30000.sl2...\t\t" + DateTime.Now.ToString() + Environment.NewLine);
+
+                        File.Copy(backupChoiceFileName, saveGameLocation + "DS30000.sl2");
+                        txtBox_log.AppendText("Created DS30000.sl2 from backup.\t" + DateTime.Now.ToString() + Environment.NewLine + Environment.NewLine);
+
+                        CustomNotificationMessageBox("Back up has been successfully restored.");
+                    }
+                    catch (Exception ex)
+                    {
+                        CustomErrorMessageBox(ex.ToString());
+                    }
+
+                }
+
+            }
+
+        }
 
 
     }
