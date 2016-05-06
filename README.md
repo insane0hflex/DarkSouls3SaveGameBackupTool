@@ -8,7 +8,7 @@ Back ups are created in the following format (hours in 24HR military time format
 
 Like so: `5_2_2016_10_03__DS30000.sl2.bak`
 
-To restore a backup, delete your `DS30000.sl2` file and rename the backup of your choice to `DS30000.sl2`.
+To restore a backup, either use the "Restore a Save" feature or delete your `DS30000.sl2` file and rename the backup of your choice to `DS30000.sl2`.
 
 Please note that you will start the backup process by pressing the "Start" button. Then start up Dark Souls 3 and play.
 
@@ -23,19 +23,19 @@ Important note: Do not delete or remove the `DarkSouls3SaveGameBackupTool.exe.co
 ![DarkSouls3SaveGameBackupTool](https://github.com/insane0hflex/DarkSouls3SaveGameBackupTool/blob/master/Images/example.png)
 
 ### ToDos
+- Keep a "MaxBackup" amount - like 10 - where older backups above 10 are automatically deleted.
 - ~~Store TimeInterval setting for user~~
 - ~~Make back up file name built with a human readable date rather than .ToFileTime()~~
 - ~~Prettify the UI~~
 - ~~Better code comments~~
 - ~~Create a check for the `.exe.config` file and create it if it doesn't exist~~
 - ~~Restore save from backup feature (instead of user manually deleting the old save and renaming a backup to `DS30000.sl2`~~
-- Keep a "MaxBackup" amount - like 10 - where older backups above 10 are automatically deleted.
 
 
 ### Build Instructions
 
 Want to build from source?
 
-Download/fork this repo then open the solution file (you will need Visual Studio installed with at least .NET Framework 4.0 installed) and build. You can get [Visual Studio Community](https://www.visualstudio.com/en-us/visual-studio-homepage-vs.aspx) for free. Once you build, the binary (.exe file) is located in /bin/Debug/ folder.
+Download this repo then open the solution file (you will need Visual Studio installed with at least .NET Framework 4.0 installed) and build. You can get [Visual Studio Community](https://www.visualstudio.com/en-us/visual-studio-homepage-vs.aspx) for free. Once you build, the binary (.exe file) is located in either the /bin/Debug/ folder or the /bin/Release/ folder.
 
 
