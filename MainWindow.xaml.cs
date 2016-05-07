@@ -29,6 +29,8 @@ namespace DarkSouls3SaveGameBackupTool
         //so this is a color that is inbetween gray and black for use for the UI
         Color deepGray = new Color();
 
+        //the time of the last write to the save file
+        DateTime lastSaveWriteTime;
 
         public MainWindow()
         {
@@ -254,6 +256,19 @@ namespace DarkSouls3SaveGameBackupTool
                 txtBox_log.ScrollToEnd();
                 return;
             }
+
+
+            //check if save file has been written to since last backup
+            DateTime curSaveWriteTime = File.GetLastWriteTime(saveGameLocation + "DS30000.sl2");
+            if (lastSaveWriteTime != null && lastSaveWriteTime == curSaveWriteTime) 
+            {
+                txtBox_log.AppendText("Save file unchanged!" + Environment.NewLine
+                                        + "\tSkipping backup creation: \t" + DateTime.Now.ToString() + Environment.NewLine);
+
+                txtBox_log.ScrollToEnd();
+                return;
+            }
+            lastSaveWriteTime = curSaveWriteTime; //update write time
 
 
             try
