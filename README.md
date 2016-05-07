@@ -16,7 +16,7 @@ When you are done playing, press the "Stop" button.
 
 ### [Download Dark Souls 3 Save Game Backup Tool](http://www.nexusmods.com/darksouls3/mods/16?)
 
-#### [Virus Total](https://www.virustotal.com/en/file/7cd31e90694bbe896272e5c81eca0762cb5f860ad926077c3673ba2e3a4a2253/analysis/1462494364/)
+#### [Virus Total Report for Dark Souls 3 Save Game Backup Tool 5/5/2016](https://www.virustotal.com/en/file/7cd31e90694bbe896272e5c81eca0762cb5f860ad926077c3673ba2e3a4a2253/analysis/1462494364/)
 
 Important note: Do not delete or remove the `DarkSouls3SaveGameBackupTool.exe.config` file. This stores the time interval setting. It must be in the same folder as the `DarkSouls3SaveGameBackupTool.exe` file.
 
