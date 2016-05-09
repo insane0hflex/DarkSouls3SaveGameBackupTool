@@ -15,7 +15,10 @@ namespace DarkSouls3SaveGameBackupTool
     {
 
         //Dark souls 3 Save game folder file path/location
-        private string saveGameLocation = ""; 
+        private string saveGameLocation = "";
+
+        //Dark souls 3 Saves backup folder file path/location
+        private string backupLocation = "";
 
         DispatcherTimer dispatcherTimer = new DispatcherTimer();
 
@@ -26,6 +29,8 @@ namespace DarkSouls3SaveGameBackupTool
         //so this is a color that is inbetween gray and black for use for the UI
         Color deepGray = new Color();
 
+        //the time of the last write to the save file
+        DateTime lastSaveWriteTime;
 
         public MainWindow()
         {
@@ -60,6 +65,7 @@ namespace DarkSouls3SaveGameBackupTool
             txtBox_backupInterval.Text = GetTimeIntervalAppSetting();
 
             SetDarkSouls3SaveGameLocation();
+            SetDarkSouls3BackupLocation();
         }
 
 
@@ -85,6 +91,7 @@ namespace DarkSouls3SaveGameBackupTool
                     appConfigFile.WriteLine("    </startup>");
                     appConfigFile.WriteLine("<appSettings>");
                     appConfigFile.WriteLine("    <add key=\"TimeInterval\" value=\"15\" />");
+                    appConfigFile.WriteLine("    <add key=\"BackupLocation\" value=\"default\" />");
                     appConfigFile.WriteLine("</appSettings>");
                     appConfigFile.WriteLine("</configuration>");
                 }
@@ -126,6 +133,34 @@ namespace DarkSouls3SaveGameBackupTool
                 txtBox_darkSouls3SaveGameLocation.Text = "Error!";
             }
 
+        }
+
+        /// <summary>
+        /// Set backup location. Defaults to save game directory.
+        /// User defined location is stored in config
+        /// </summary>
+        private void SetDarkSouls3BackupLocation() {
+            try {
+                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+                string backLoc = config.AppSettings.Settings["BackupLocation"].Value;
+
+                if (backLoc == "default" || !Directory.Exists(backLoc)) {
+                    backLoc = saveGameLocation;
+                }
+
+                backupLocation = backLoc;
+            }
+            catch (Exception ex) {
+                string errorMessage = "Error! Looks like you deleted the DarkSouls3SaveGameBackupTool.exe.config file."
+                                    + "Please make sure this file is in the same directory as DarkSouls3SaveGameBackupTool.exe.";
+
+                CustomErrorMessageBox(errorMessage);
+                CustomErrorMessageBox(ex.ToString());
+
+                backupLocation = saveGameLocation;
+            }
+            txtBox_darkSouls3BackupLocation.Text = backupLocation;
         }
 
 
@@ -223,6 +258,19 @@ namespace DarkSouls3SaveGameBackupTool
             }
 
 
+            //check if save file has been written to since last backup
+            DateTime curSaveWriteTime = File.GetLastWriteTime(saveGameLocation + "DS30000.sl2");
+            if (lastSaveWriteTime != null && lastSaveWriteTime == curSaveWriteTime) 
+            {
+                txtBox_log.AppendText("Save file unchanged!" + Environment.NewLine
+                                        + "\tSkipping backup creation: \t" + DateTime.Now.ToString() + Environment.NewLine);
+
+                txtBox_log.ScrollToEnd();
+                return;
+            }
+            lastSaveWriteTime = curSaveWriteTime; //update write time
+
+
             try
             {
                 //human readable date for file backup - M/DD/YYYY 24H:MM
@@ -231,8 +279,7 @@ namespace DarkSouls3SaveGameBackupTool
                 //Remove spaces, : and / from dateOfBackupForFileName and replace with underscore
                 dateOfBackupForFileName = System.Text.RegularExpressions.Regex.Replace(dateOfBackupForFileName, @"[:|/|\s]", "_");
 
-
-                File.Copy(saveGameLocation + "DS30000.sl2", saveGameLocation + dateOfBackupForFileName + "__DS30000.sl2.bak");
+                File.Copy(saveGameLocation + "DS30000.sl2", backupLocation + dateOfBackupForFileName + "__DS30000.sl2.bak");
 
                 txtBox_log.AppendText("Created a new backup:\t\t" + DateTime.Now.ToString() + Environment.NewLine);
                 txtBox_log.ScrollToEnd();
@@ -378,6 +425,28 @@ namespace DarkSouls3SaveGameBackupTool
             }
         }
 
+        /// <summary>
+        /// Set/Save the backup location to the app.config file.
+        /// </summary>
+        private void SaveBackupLocationAppSetting() {
+            try {
+                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+                config.AppSettings.Settings["BackupLocation"].Value = backupLocation;
+
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
+
+            }
+            catch (Exception ex) {
+                string errorMessage = "Error! Looks like you deleted the DarkSouls3SaveGameBackupTool.exe.Config file.";
+                errorMessage += "Please make sure this file is in the same directory as DarkSouls3SaveGameBackupTool.exe.";
+
+                CustomErrorMessageBox(errorMessage);
+                CustomErrorMessageBox(ex.ToString());
+            }
+        }
+
 
         /// <summary>
         /// Get the TimeInterval app.config setting
@@ -422,7 +491,7 @@ namespace DarkSouls3SaveGameBackupTool
             Microsoft.Win32.OpenFileDialog fileDialog = new Microsoft.Win32.OpenFileDialog();
 
             fileDialog.Filter = "Dark Souls 3 Save Game Backups (.bak)|*.bak";
-            fileDialog.InitialDirectory = saveGameLocation;
+            fileDialog.InitialDirectory = backupLocation;
 
             bool? result = fileDialog.ShowDialog();
 
@@ -463,6 +532,25 @@ namespace DarkSouls3SaveGameBackupTool
 
         }
 
+        /// <summary>
+        /// Lets user choose a folder for backups. Saves to config file
+        /// </summary>
+        private void btn_chooseSaveBackupsLocation_Click(object sender, RoutedEventArgs e) {
+            System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
+            folderBrowser.ShowDialog();
 
+            if (!string.IsNullOrWhiteSpace(folderBrowser.SelectedPath)) {
+                backupLocation = folderBrowser.SelectedPath + "\\";
+                txtBox_darkSouls3BackupLocation.Text = backupLocation;
+                SaveBackupLocationAppSetting();
+            }
+        }
+
+        /// <summary>
+        /// opens backup location
+        /// </summary>
+        private void btn_openBackupLocation_Click(object sender, RoutedEventArgs e) {
+            Process.Start(backupLocation);
+        }
     }
 }
