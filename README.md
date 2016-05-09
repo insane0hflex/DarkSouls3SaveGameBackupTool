@@ -23,9 +23,9 @@ Important note: Do not delete or remove the `DarkSouls3SaveGameBackupTool.exe.co
 ![DarkSouls3SaveGameBackupTool](https://github.com/insane0hflex/DarkSouls3SaveGameBackupTool/blob/master/Images/example.png)
 
 ### ToDos
-- Add a "Choose Save Location" mainly to support users that share a computer with someone else (ie 2 brothers with 2 different steam accounts each with their own Dark Souls 2)
-- Key to createa a back up manually (think of like an F5 to "quick save" of sorts
+- Key to create a back up manually (think of like an F5 to "quick save" of sorts
 - Keep a "MaxBackup" amount - like 10 - where older backups above 10 are automatically deleted.
+- By Lakon: ~~Add a specific folder for backup locations to save the back ups too~~
 - ~~Store TimeInterval setting for user~~
 - ~~Make back up file name built with a human readable date rather than .ToFileTime()~~
 - ~~Prettify the UI~~
