@@ -12,7 +12,7 @@ To restore a backup, either use the "Restore a Save" feature or delete your `DS3
 
 Please note that you will start the backup process by pressing the "Start" button. Then start up Dark Souls 3 and play.
 
-When you are done playing, press the "Stop" button.
+When you are done playing, press the "Stop" button. The program will continue to try to create back ups until you close the program or press the "Stop" button. However, if Dark Souls 3 is not running, then no backup is made.
 
 ### [Download Dark Souls 3 Save Game Backup Tool](http://www.nexusmods.com/darksouls3/mods/16?)
 
