@@ -42,7 +42,7 @@ namespace DarkSouls3SaveGameBackupTool
             paleYellow.G = 0xEE;
             paleYellow.B = 0xCF;
 
-            //0xFF515151
+            //0xFF515151 == deep gray color
             deepGray.A = 0xFF;
             deepGray.R = 0x51;
             deepGray.G = 0x51;
@@ -208,6 +208,8 @@ namespace DarkSouls3SaveGameBackupTool
             txtBox_log.ScrollToEnd();
         }
 
+
+
         //The following methods color and enable/disable the "Start" and "Stop" buttons
         #region Color and Enable/Disable Start and Stop Buttons
         private void Enable_btnStartBackUpProcess()
@@ -238,8 +240,9 @@ namespace DarkSouls3SaveGameBackupTool
             btn_endBackUpProcess.Background = new SolidColorBrush(Colors.Gray);
             btn_endBackUpProcess.Foreground = new SolidColorBrush(Colors.LightGray);
         }
-
         #endregion
+
+
 
 
         /// <summary>
@@ -249,8 +252,6 @@ namespace DarkSouls3SaveGameBackupTool
         {
             //check for DarkSoulsIII process so that no back ups are made if the game isnt running
             //thanks Tenchuu on the NexusMods site for this code suggestion!
-
-
             Process[] dsIIIProcesses = Process.GetProcessesByName("DarkSoulsIII");
 
             //dsIIIProcesses == 0 means no DarkSoulsIII process is running
@@ -262,7 +263,6 @@ namespace DarkSouls3SaveGameBackupTool
                 txtBox_log.ScrollToEnd();
                 return;
             }
-
 
             //check if save file has been written to since last backup
             DateTime curSaveWriteTime = File.GetLastWriteTime(saveGameLocation + "DS30000.sl2");
@@ -276,7 +276,6 @@ namespace DarkSouls3SaveGameBackupTool
             }
 
             lastSaveWriteTime = curSaveWriteTime; //update write time
-
 
             try
             {
@@ -565,5 +564,9 @@ namespace DarkSouls3SaveGameBackupTool
         {
             Process.Start(saveBackupLocation);
         }
+        
+        
+        
+        
     }
 }
