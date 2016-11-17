@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows.Threading;
 using System.Diagnostics;
 using System.Configuration;
+using System.Linq;
 using System.Windows.Media;
 
 namespace DarkSouls3SaveGameBackupTool
@@ -63,6 +64,7 @@ namespace DarkSouls3SaveGameBackupTool
             }
 
             txtBox_backupInterval.Text = GetTimeIntervalAppSetting();
+            txtBox_maxBackups.Text = GetMaxBackupsAppSetting();
 
             SetDarkSouls3SaveGameLocation();
             SetDarkSouls3BackupLocation();
@@ -92,6 +94,7 @@ namespace DarkSouls3SaveGameBackupTool
                     appConfigFile.WriteLine("<appSettings>");
                     appConfigFile.WriteLine("    <add key=\"TimeInterval\" value=\"15\" />");
                     appConfigFile.WriteLine("    <add key=\"BackupLocation\" value=\"default\" />");
+                    appConfigFile.WriteLine("    <add key=\"MaxBackups\" value=\"10\" />");
                     appConfigFile.WriteLine("</appSettings>");
                     appConfigFile.WriteLine("</configuration>");
                 }
@@ -124,7 +127,7 @@ namespace DarkSouls3SaveGameBackupTool
             }
             catch (Exception ex)
             {
-                string errorMessage = "Error!Could not find the DarkSoulsIII folder.Looked for the DarkSoulsIII folder in: "
+                string errorMessage = "Error!Could not find the DarkSoulsIII folder. Looked for the DarkSoulsIII folder in: "
                                     + Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
                                     + Environment.NewLine;
 
@@ -280,14 +283,12 @@ namespace DarkSouls3SaveGameBackupTool
             try
             {
                 //human readable date for file backup - M/DD/YYYY 24H:MM
-                string dateOfBackupForFileName = DateTime.Now.ToString("M/d/yyyy HH:mm");
-
-                //Remove spaces, : and / from dateOfBackupForFileName and replace with underscore
-                dateOfBackupForFileName = System.Text.RegularExpressions.Regex.Replace(dateOfBackupForFileName, @"[:|/|\s]", "_");
+                string dateOfBackupForFileName = DateTime.Now.ToString("M_d_yyyy_HH_mm");
 
                 File.Copy(saveGameLocation + "DS30000.sl2", saveBackupLocation + dateOfBackupForFileName + "__DS30000.sl2.bak");
 
                 txtBox_log.AppendText("Created a new backup:\t\t" + DateTime.Now.ToString() + Environment.NewLine);
+                DeleteOldBackup();
                 txtBox_log.ScrollToEnd();
             }
             catch (Exception ex)
@@ -302,6 +303,33 @@ namespace DarkSouls3SaveGameBackupTool
             }
         }
 
+        /// <summary>
+        /// Checks if there are more backups than the maximum allowed amount, and deletes the most
+        /// recent if there is.
+        /// </summary>
+        /// <remarks>
+        /// This does not retroactively delete backups exceeding the maximum if the maximum is lowered.
+        /// E.g. if you have 10 backups and set the max to 5, it will not delete 5 backups the next time
+        /// the timer fires, it will only delete one (the oldest).
+        /// </remarks>
+        private void DeleteOldBackup()
+        {
+            var maxBackups = GetMaxBackupsValue();
+
+            if (maxBackups == 0)
+                return; // 0 indicates no maximum
+
+            var backupFiles = new DirectoryInfo(saveBackupLocation).EnumerateFiles("*.sl2.bak").ToList();
+
+            if (backupFiles.Count > maxBackups)
+            {
+                var oldestBackup = backupFiles.OrderBy(fi => fi.CreationTime).First();
+                oldestBackup.Delete();
+
+                txtBox_log.AppendText($"Backups reached maximum; deleted oldest backup ({oldestBackup.Name}){Environment.NewLine}");
+            }
+        }
+
 
         /// <summary>
         /// Gets the time interval for creating a backup in minutes. Value has to be within 1 to 59.
@@ -311,39 +339,60 @@ namespace DarkSouls3SaveGameBackupTool
         {
             int timeInterval = 0;
 
-            try
+            if (Int32.TryParse(txtBox_backupInterval.Text, out timeInterval))
             {
-                timeInterval = Convert.ToInt32(txtBox_backupInterval.Text);
-
                 if (timeInterval < 1)
                 {
-                    throw new Exception("Time interval cannot be less than 1 minute! Defaulting to 15 minutes...");
+                    txtBox_log.AppendText("Time interval cannot be less than 1 minute! Defaulting to 15 minutes...");
+                    return ResetTimerInterval();
                 }
                 else if (timeInterval > 59)
                 {
-                    throw new Exception("Time interval cannot be more than 59 minutes! Defaulting to 15 minutes...");
+                    txtBox_log.AppendText("Time interval cannot be more than 59 minutes! Defaulting to 15 minutes...");
+                    return ResetTimerInterval();
                 }
 
                 return timeInterval;
-
             }
-            catch (Exception ex)
-            {
-                //stop timer event
-                CustomErrorMessageBox(ex.Message);
 
-                if (dispatcherTimer.IsEnabled)
-                {
-                    dispatcherTimer.Stop();
-                }
-
-                //default back to 15 minutes for time interval
-                txtBox_backupInterval.Text = "15";
-
-                return 15;
-            }
+            return ResetTimerInterval();
         }
 
+        private int GetMaxBackupsValue()
+        {
+            int maxBackups = 0;
+
+            if (Int32.TryParse(txtBox_maxBackups.Text, out maxBackups))
+            {
+                if (maxBackups < 0)
+                {
+                    txtBox_maxBackups.Text = "0";
+                    return 0;
+                }
+
+                return maxBackups;
+            }
+
+            txtBox_maxBackups.Text = "10";
+            return 10;
+        }
+
+        /// <summary>
+        /// Resets the timer interval and stops the timer, for error correction purposes.
+        /// </summary>
+        /// <returns></returns>
+        private int ResetTimerInterval()
+        {
+            //stop timer event
+            if (dispatcherTimer.IsEnabled)
+            {
+                dispatcherTimer.Stop();
+            }
+
+            //default back to 15 minutes for time interval
+            txtBox_backupInterval.Text = "15";
+            return 15;
+        }
 
 
         /// <summary>
@@ -401,34 +450,17 @@ namespace DarkSouls3SaveGameBackupTool
             CustomNotificationMessageBox(message.ToString());
         }
 
+        private void SaveMaxBackupsAppSetting()
+        {
+            TrySaveConfigValue("MaxBackups", GetMaxBackupsValue().ToString());
+        }
 
         /// <summary>
         /// Set/Save the Time Interval for saving from the UI to the app.config file.
         /// </summary>
         private void SaveTimeIntervalAppSetting()
         {
-            try
-            {
-                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-
-                string timeIntervalSetting = GetTimeIntervalValue().ToString();
-
-                config.AppSettings.Settings["TimeInterval"].Value = timeIntervalSetting;
-
-                config.Save(ConfigurationSaveMode.Modified);
-                ConfigurationManager.RefreshSection("appSettings");
-
-                txtBox_log.AppendText("Saved Time Interval setting: " + timeIntervalSetting + "\t" + DateTime.Now.ToString() + Environment.NewLine);
-
-            }
-            catch (Exception ex)
-            {
-                string errorMessage = "Error! Looks like you deleted the DarkSouls3SaveGameBackupTool.exe.Config file.";
-                errorMessage += "Please make sure this file is in the same directory as DarkSouls3SaveGameBackupTool.exe.";
-
-                CustomErrorMessageBox(errorMessage);
-                CustomErrorMessageBox(ex.ToString());
-            }
+            TrySaveConfigValue("TimeInterval", GetTimeIntervalValue().ToString());
         }
 
         /// <summary>
@@ -436,24 +468,7 @@ namespace DarkSouls3SaveGameBackupTool
         /// </summary>
         private void SaveBackupLocationAppSetting()
         {
-            try
-            {
-                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-
-                config.AppSettings.Settings["BackupLocation"].Value = saveBackupLocation;
-
-                config.Save(ConfigurationSaveMode.Modified);
-                ConfigurationManager.RefreshSection("appSettings");
-
-            }
-            catch (Exception ex)
-            {
-                string errorMessage = "Error! Looks like you deleted the DarkSouls3SaveGameBackupTool.exe.Config file.";
-                errorMessage += "Please make sure this file is in the same directory as DarkSouls3SaveGameBackupTool.exe.";
-
-                CustomErrorMessageBox(errorMessage);
-                CustomErrorMessageBox(ex.ToString());
-            }
+            TrySaveConfigValue("BackupLocation", saveBackupLocation);
         }
 
 
@@ -463,11 +478,54 @@ namespace DarkSouls3SaveGameBackupTool
         /// </summary>
         private string GetTimeIntervalAppSetting()
         {
+            return TryGetConfigValue("TimeInterval");
+        }
+
+        private string GetMaxBackupsAppSetting()
+        {
+            return TryGetConfigValue("MaxBackups");
+        }
+
+        /// <summary>
+        /// Attempts to save a value to the configuration file using the provided key.
+        /// Does not throw if the value cannot be saved.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        private void TrySaveConfigValue(string key, string value)
+        {
             try
             {
                 Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-                return config.AppSettings.Settings["TimeInterval"].Value;
+                config.AppSettings.Settings[key].Value = value;
+
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
+                txtBox_log.AppendText($"Saved {key} setting: {value}\t{DateTime.Now}{Environment.NewLine}");
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = "Error! Looks like you deleted the DarkSouls3SaveGameBackupTool.exe.Config file.";
+                errorMessage += "Please make sure this file is in the same directory as DarkSouls3SaveGameBackupTool.exe.";
+
+                CustomErrorMessageBox(errorMessage);
+                CustomErrorMessageBox(ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Attempts to read the configuration value for the specified key.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns>The value if it exists and can be read, otherwise "ERROR!"</returns>
+        private string TryGetConfigValue(string key)
+        {
+            try
+            {
+                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+                return config.AppSettings.Settings[key].Value;
             }
             catch (Exception ex)
             {
@@ -481,13 +539,13 @@ namespace DarkSouls3SaveGameBackupTool
             }
         }
 
-
         /// <summary>
-        /// Save the TimeInterval setting to the app.config file
+        /// Save the TimeInterval and MaxBackups settings to the app.config file
         /// </summary>
-        private void btn_saveTimeInterval_Click(object sender, RoutedEventArgs e)
+        private void btn_saveSettings_Click(object sender, RoutedEventArgs e)
         {
             SaveTimeIntervalAppSetting();
+            SaveMaxBackupsAppSetting();
         }
 
 
@@ -564,9 +622,5 @@ namespace DarkSouls3SaveGameBackupTool
         {
             Process.Start(saveBackupLocation);
         }
-        
-        
-        
-        
     }
 }
