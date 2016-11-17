@@ -24,7 +24,7 @@ Important note: Do not delete or remove the `DarkSouls3SaveGameBackupTool.exe.co
 
 ### ToDos
 - Key to create a back up manually (think of like an F5 to "quick save" of sorts
-- Keep a "MaxBackup" amount - like 10 - where older backups above 10 are automatically deleted.
+- ~~Keep a "MaxBackup" amount - like 10 - where older backups above 10 are automatically deleted.~~
 - By Lakon: ~~Add a specific folder for backup locations to save the back ups too~~
 - ~~Store TimeInterval setting for user~~
 - ~~Make back up file name built with a human readable date rather than .ToFileTime()~~
